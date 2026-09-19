@@ -1,0 +1,12 @@
+{
+  "name": "가가오톡",
+  "short_name": "가가오톡",
+  "description": "우리 학교 친구들만 들어올 수 있는 톡",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "icons": [
+    { "src": "cards/level_01_sprout.png", "sizes": "1254x1254", "type": "image/png", "purpose": "any" }
+  ]
+}

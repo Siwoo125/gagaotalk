@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#0f1117">
+<title>가가오톡</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 설정 안 됨 -->
+<section id="screen-setup" class="screen">
+  <div class="pad">
+    <h1 class="brand">가가오톡</h1>
+    <p class="muted"><code>config.js</code> 를 확인하세요.</p>
+  </div>
+</section>
+
+<!-- 로딩 -->
+<section id="screen-loading" class="screen">
+  <div class="center"><div class="spinner"></div></div>
+</section>
+
+<!-- 로그인 -->
+<section id="screen-signin" class="screen">
+  <div class="pad auth">
+    <h1 class="brand">가가오톡</h1>
+    <p class="muted center-text small">우리 학교 전용</p>
+    <input id="in-nickname" placeholder="닉네임" autocomplete="username">
+    <input id="in-password" type="password" placeholder="비밀번호" autocomplete="current-password">
+    <button id="btn-signin" class="primary">로그인</button>
+    <button id="btn-go-signup" class="link">초대 코드로 처음 가입하기</button>
+  </div>
+</section>
+
+<!-- 가입 -->
+<section id="screen-signup" class="screen">
+  <div class="pad auth">
+    <button id="btn-back-signin" class="link back">← 로그인으로</button>
+    <h2>가입 신청</h2>
+
+    <label class="field-label">초대 코드</label>
+    <input id="up-code" placeholder="친구에게 받은 코드" autocapitalize="characters">
+
+    <label class="field-label">나</label>
+    <input id="up-nickname" placeholder="닉네임 (2~12자)" autocomplete="username">
+    <input id="up-password" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
+    <div class="row">
+      <select id="up-grade"></select>
+      <select id="up-class"></select>
+    </div>
+    <label class="field-label">하우스</label>
+    <div id="up-houses" class="houses"></div>
+
+    <button id="btn-signup" class="primary">가입 신청하기</button>
+  </div>
+</section>
+
+<!-- 승인 대기 -->
+<section id="screen-pending" class="screen">
+  <div class="center pad">
+    <h2>승인 대기</h2>
+    <p id="pending-name" class="strong"></p>
+    <p class="muted center-text small">관리자 승인을 기다리는 중</p>
+    <button id="btn-recheck" class="primary">새로고침</button>
+    <button id="btn-signout-pending" class="link">로그아웃</button>
+  </div>
+</section>
+
+<!-- 차단 -->
+<section id="screen-blocked" class="screen">
+  <div class="center pad">
+    <h2 id="blocked-title">입장 불가</h2>
+    <button id="btn-signout-blocked" class="link">로그아웃</button>
+  </div>
+</section>
+
+<!-- 메인 -->
+<section id="screen-main" class="screen">
+  <header id="main-header">
+    <h2 id="tab-title">톡</h2>
+    <div id="header-actions"></div>
+  </header>
+
+  <main id="tab-body"></main>
+
+  <nav id="tabbar">
+    <button data-tab="rooms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.9 9.9 0 0 1-4-.9L3 21l2-4a8.4 8.4 0 0 1-1-4.5 8.4 8.4 0 0 1 9-8.4 8.4 8.4 0 0 1 8 7.4z"/></svg>톡</button>
+    <button data-tab="friends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>친구</button>
+    <button data-tab="gaga"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.7L20 10l-5.2 3.1L16 19l-4-3.2L8 19l1.2-5.9L4 10l6.1-1.3z"/></svg>가가</button>
+    <button data-tab="admin" id="tab-admin" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>관리</button>
+    <button data-tab="me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7v1"/></svg>내 정보</button>
+  </nav>
+</section>
+
+<!-- 채팅 (전체화면) -->
+<section id="screen-chat" class="screen">
+  <header id="chat-header">
+    <button id="btn-chat-back" class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="chat-title">
+      <span id="chat-name"></span>
+      <span id="chat-mood" class="mood"></span>
+    </div>
+    <button id="btn-chat-tools" class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  </header>
+  <div id="chat-banner" hidden></div>
+  <div id="chat-scroll"><div id="chat-list"></div></div>
+  <form id="chat-form">
+    <button type="button" id="btn-roulette" class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.1" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.1" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.1" fill="currentColor"/></svg></button>
+    <input id="chat-input" placeholder="메시지" autocomplete="off">
+    <button type="submit" id="btn-send" class="send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+  </form>
+</section>
+
+<div id="toast" hidden></div>
+<div id="sheet" hidden><div id="sheet-inner"></div></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
