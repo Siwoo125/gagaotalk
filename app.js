@@ -88,6 +88,7 @@ const state = {
   messages: [],
   nicknames: {},
   channel: null,
+  reactions: {},          // 메시지id -> { 이모지: 개수 }
   signup: { house: "NORO" },
 };
 
@@ -368,6 +369,7 @@ async function openChat(room) {
 
   state.messages = (data || []).reverse();
   drawMessages();
+  await loadReactions();
   sb.rpc("mark_room_read", { p_room_id: room.id });
   subscribeRoom(room.id);
 }
@@ -406,14 +408,82 @@ function messageRow(message, previous) {
   col.append(meta);
   row.append(col);
 
+  const reacts = state.reactions[message.id];
+  if (reacts) {
+    const box = el("div", "reacts");
+    Object.entries(reacts).sort().forEach(([emoji, count]) => {
+      box.append(el("span", null, count > 1 ? `${emoji} ${count}` : emoji));
+    });
+    col.append(box);
+  }
+
   if (message._state === "failed") {
     row.onclick = () => {
       state.messages = state.messages.filter((m) => m.id !== message.id);
       $("chat-input").value = message.body;
       drawMessages();
     };
+  } else if (!String(message.id).startsWith("temp-")) {
+    row.onclick = () => openMessageMenu(message);
   }
   return row;
+}
+
+async function loadReactions() {
+  const ids = state.messages.map((m) => m.id).filter((id) => !String(id).startsWith("temp-"));
+  if (!ids.length) return;
+  const { data } = await sb
+    .from("message_reactions").select("message_id,emoji").in("message_id", ids);
+  const next = {};
+  (data || []).forEach((row) => {
+    next[row.message_id] = next[row.message_id] || {};
+    next[row.message_id][row.emoji] = (next[row.message_id][row.emoji] || 0) + 1;
+  });
+  state.reactions = next;
+  drawMessages();
+}
+
+/** 말풍선을 누르면 뜨는 메뉴 */
+function openMessageMenu(message) {
+  const mine = message.sender_id === state.me.id;
+  openSheet(null, (box) => {
+    const row = el("div", "btn-row");
+    ["❤️", "😂", "👍", "😮", "😢"].forEach((emoji) => {
+      const b = el("button", null, emoji);
+      b.style.fontSize = "22px";
+      b.onclick = async () => {
+        const { error } = await sb.rpc("toggle_reaction", {
+          p_message_id: message.id, p_emoji: emoji,
+        });
+        closeSheet();
+        if (error) return toast(errText(error));
+        await loadReactions();
+      };
+      row.append(b);
+    });
+    box.append(row);
+
+    const copy = el("button", "primary", "복사");
+    copy.onclick = () => {
+      navigator.clipboard?.writeText(message.body);
+      toast("복사됨"); closeSheet();
+    };
+    box.append(copy);
+
+    if (mine) {
+      const del = el("button", "primary", "삭제");
+      del.style.background = "var(--danger)";
+      del.style.color = "#fff";
+      del.onclick = async () => {
+        const { error } = await sb.from("messages").delete().eq("id", message.id);
+        closeSheet();
+        if (error) return toast(errText(error));
+        state.messages = state.messages.filter((m) => m.id !== message.id);
+        drawMessages();
+      };
+      box.append(del);
+    }
+  });
 }
 
 function updateMood() {
@@ -1009,15 +1079,28 @@ async function renderAdmin() {
     }
 
     if (person.status === "approved" && !me) {
-      const toggle = el("button", null, person.is_admin ? "관리자 해제" : "관리자로");
-      toggle.onclick = async () => {
+      const admin = el("button", null, person.is_admin ? "관리자 해제" : "관리자");
+      admin.onclick = async () => {
         const { error } = await sb.rpc("set_admin", {
           p_user_id: person.id, p_is_admin: !person.is_admin,
         });
-        toast(error ? errText(error) : "바꿨어요");
+        toast(error ? errText(error) : "변경됨");
         if (!error) openTab("admin");
       };
-      actions.append(toggle);
+      actions.append(admin);
+
+      // 관리자는 이미 운영진 권한을 포함하므로 관리자에게는 안 보여준다
+      if (!person.is_admin) {
+        const mod = el("button", null, person.is_moderator ? "운영진 해제" : "운영진");
+        mod.onclick = async () => {
+          const { error } = await sb.rpc("set_moderator", {
+            p_user_id: person.id, p_is_moderator: !person.is_moderator,
+          });
+          toast(error ? errText(error) : "변경됨");
+          if (!error) openTab("admin");
+        };
+        actions.append(mod);
+      }
     }
 
     if (actions.children.length) card.append(actions);
