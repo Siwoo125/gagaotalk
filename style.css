@@ -70,9 +70,10 @@ button.icon svg { width: 21px; height: 21px; }
 /* 하우스 ------------------------------------------------------------ */
 .houses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 .houses button {
-  padding: 13px 4px; background: var(--surface);
-  border: 1px solid var(--line); font-size: 13px; font-weight: 600;
+  padding: 11px 4px; background: var(--surface);
+  border: 1px solid var(--line); font-size: 12px; font-weight: 700;
   color: var(--muted);
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
 }
 .houses button.on {
   border-color: var(--house); color: var(--text);
