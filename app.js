@@ -66,6 +66,26 @@ function show(screen) {
 
 function houseOf(id) { return HOUSES.find((h) => h.id === id); }
 
+/**
+ * 하우스 문장. 실제 학교 문장 이미지(houses/NORO.png 등)가 있으면 그걸 쓰고,
+ * 없으면 같은 이름의 SVG 방패를 쓴다.
+ */
+function houseCrest(houseId, size = 22) {
+  const house = houseOf(houseId);
+  if (!house) return null;
+  const img = document.createElement("img");
+  img.width = size;
+  img.height = Math.round(size * 1.04);
+  img.alt = house.id;
+  img.style.cssText = "display:block;flex:none";
+  img.src = `houses/${house.id}.png`;
+  img.onerror = () => {
+    img.onerror = null;
+    img.src = `houses/${house.id}.svg`;
+  };
+  return img;
+}
+
 function schoolLine(profile) {
   const parts = [];
   if (profile.grade) parts.push(`${profile.grade}학년${profile.class_letter ? " " + profile.class_letter + "반" : ""}`);
@@ -152,6 +172,8 @@ function fillSignupForm() {
     const b = el("button");
     b.type = "button";
     b.style.setProperty("--house", h.color);
+    const crest = houseCrest(h.id, 34);
+    if (crest) b.append(crest);
     b.append(el("span", "house-name", h.id));
     b.onclick = () => {
       state.signup.house = h.id;
@@ -813,14 +835,8 @@ async function renderFriends() {
     const title = el("div", "title");
     title.append(looks.styleName(el("span", null, person.nickname),person));
     if (person.show_level_badge) title.append(el("span", "chip", `Lv.${level.level}`));
-    const house = houseOf(person.house);
-    if (house) {
-      // 이모지 대신 하우스 색으로 구분한다
-      const chip = el("span", "chip", house.id);
-      chip.style.background = house.color;
-      chip.style.color = "#fff";
-      title.append(chip);
-    }
+    const crest = houseCrest(person.house, 18);
+    if (crest) title.append(crest);
     const grow = el("div", "grow");
     grow.append(title, el("div", "sub", person.bio || schoolLine(person) || " "));
     row.append(looks.avatar(person, "icon-box"), grow, el("div", "right", "💬"));
@@ -1156,6 +1172,8 @@ async function renderMe() {
   const card = el("div", "card");
   const meTitle = el("div", "title");
   meTitle.append(el("span", null, state.me.nickname));
+  const myCrest = houseCrest(state.me.house, 20);
+  if (myCrest) meTitle.append(myCrest);
   const myBadge = roleBadge(state.me);
   if (myBadge) meTitle.append(el("span", "chip", myBadge));
   card.append(meTitle,
