@@ -1,4 +1,5 @@
-import { composePage } from "./presentation.js?v=20260919-2";
+import { createCustomization } from "./customization.js?v=20260919-3";
+import { composePage } from "./presentation.js";
 // =====================================================================
 // 가가오톡 웹
 // iOS 앱과 같은 Supabase 를 쓴다. 규칙(레벨, 능력, 권한)은 전부 DB 에 있으므로
@@ -104,6 +105,8 @@ async function boot() {
   await loadMe();
 }
 
+const looks = createCustomization({sb,state,el,toast,errText,openSheet,closeSheet,openTab,levelForProfile});
+
 async function loadMe() {
   show("loading");
   const { data: { user } } = await sb.auth.getUser();
@@ -119,6 +122,7 @@ async function loadMe() {
   if (data.status === "approved") {
     $("tab-admin").hidden = !(data.is_admin || data.is_moderator);
     show("main");
+    await looks.loadCatalog().catch(() => {});
     openTab(state.tab);
   } else if (data.status === "pending") {
     $("pending-name").textContent = `${data.nickname}  ${schoolLine(data)}`;
@@ -349,6 +353,8 @@ function openCreateRoom() {
 async function openChat(room) {
   state.room = room;
   state.messages = [];
+  state.memberProfiles = {};
+  await looks.loadCatalog().catch(() => {});
   $("chat-name").textContent = room.name || "이름 없는 방";
   $("chat-list").innerHTML = "";
   $("chat-banner").hidden = true;
@@ -359,8 +365,9 @@ async function openChat(room) {
     .from("room_members").select("user_id").eq("room_id", room.id);
   if (members?.length) {
     const { data: profiles } = await sb
-      .from("profiles").select("id,nickname").in("id", members.map((m) => m.user_id));
+      .from("profiles").select("*").in("id", members.map((m) => m.user_id));
     state.nicknames = Object.fromEntries((profiles || []).map((p) => [p.id, p.nickname]));
+    state.memberProfiles = Object.fromEntries((profiles || []).map(p => [p.id,p]));
   }
 
   const { data, error } = await sb
@@ -397,12 +404,13 @@ function messageRow(message, previous) {
     || new Date(message.created_at) - new Date(previous.created_at) > 300000;
 
   const row = el("div", "msg" + (mine ? " mine" : "") + (message._state ? " " + message._state : ""));
-  const avatar = el("div", "av" + (showHeader ? "" : " hidden"), nickname.slice(0, 1));
+  const profile = mine ? state.me : (state.memberProfiles?.[message.sender_id] || {nickname});
+  const avatar = looks.avatar(profile, "av" + (showHeader ? "" : " hidden"));
   if (!mine) row.append(avatar);
 
   const col = el("div", "col");
-  if (!mine && showHeader) col.append(el("div", "who", nickname));
-  col.append(el("div", "bubble", message.body));
+  if (!mine && showHeader) col.append(looks.styleName(el("div", "who", nickname), profile));
+  col.append(looks.styleBubble(el("div", "bubble", message.body), profile));
 
   const meta = el("div", "meta",
     message._state === "sending" ? ""
@@ -541,6 +549,8 @@ $("btn-chat-back").onclick = async () => {
   show("main");
   openTab("rooms");
 };
+
+$("btn-stickers").onclick = () => looks.stickers();
 
 $("chat-form").onsubmit = async (event) => {
   event.preventDefault();
@@ -709,6 +719,7 @@ $("btn-chat-tools").onclick = async () => {
 // 친구
 // =====================================================================
 async function renderFriends() {
+  await looks.loadCatalog().catch(() => {});
   const [dir, queue, unanswered, birthdays, stats] = await Promise.all([
     sb.from("profiles").select("*").eq("status", "approved").order("nickname"),
     sb.rpc("reply_queue"),
@@ -800,22 +811,26 @@ async function renderFriends() {
     const level = levelForProfile(person);
     const row = el("button", "rowitem");
     const title = el("div", "title");
-    title.append(el("span", null, person.nickname));
+    title.append(looks.styleName(el("span", null, person.nickname),person));
     if (person.show_level_badge) title.append(el("span", "chip", `Lv.${level.level}`));
     const house = houseOf(person.house);
     if (house) {
-      const chip = el("span", "chip gray", `${house.emoji} ${house.id}`);
-      chip.style.color = house.color;
+      // 이모지 대신 하우스 색으로 구분한다
+      const chip = el("span", "chip", house.id);
+      chip.style.background = house.color;
+      chip.style.color = "#fff";
       title.append(chip);
     }
     const grow = el("div", "grow");
     grow.append(title, el("div", "sub", person.bio || schoolLine(person) || " "));
-    row.append(el("div", "icon-box", person.nickname.slice(0, 1)), grow, el("div", "right", "💬"));
+    row.append(looks.avatar(person, "icon-box"), grow, el("div", "right", "💬"));
     row.onclick = async () => {
       await sb.rpc("record_profile_visit", { p_profile_id: person.id });
-      const { data, error } = await sb.rpc("get_or_create_dm", { p_other: person.id });
-      if (error) return toast(errText(error));
-      openDMRoom(data, person.nickname);
+      looks.openFriend(person, async () => {
+        const { data, error } = await sb.rpc("get_or_create_dm", { p_other: person.id });
+        if (error) return toast(errText(error));
+        openDMRoom(data, person.nickname);
+      });
     };
     wrap.append(row);
   });
@@ -1057,7 +1072,7 @@ async function renderAdmin() {
   (all.data || []).forEach((person) => {
     const card = el("div", "card");
     const title = el("div", "title");
-    title.append(el("span", null, person.nickname));
+    title.append(looks.styleName(el("span", null, person.nickname),person));
     const badge = roleBadge(person);
     if (badge) title.append(el("span", "chip", badge));
     if (person.status === "banned") title.append(el("span", "chip gray", "퇴장됨"));
@@ -1125,6 +1140,7 @@ async function renderAdmin() {
 // 내 정보
 // =====================================================================
 async function renderMe() {
+  await looks.loadCatalog().catch(() => {});
   const [interests, mine, visitors] = await Promise.all([
     sb.from("interests").select("*").order("category"),
     sb.from("profile_interests").select("interest_id").eq("user_id", state.me.id),
@@ -1146,6 +1162,8 @@ async function renderMe() {
               el("div", "muted small", schoolLine(state.me)),
               el("div", "muted small", `${level.tier.emoji} ${level.tier.name}  ${level.label}`));
   wrap.append(card);
+
+  looks.addMeControls(card);
 
   // --- 학교 정보 ---
   wrap.append(el("div", "section-title", "학교"));
@@ -1276,10 +1294,18 @@ function openSheet(title, build) {
   const inner = $("sheet-inner");
   inner.innerHTML = "";
   if (title) inner.append(el("h2", null, title));
+  inner.classList.remove("customize-sheet");
   build(inner);
   $("sheet").hidden = false;
+  inner.setAttribute("role", "dialog");
+  inner.setAttribute("aria-modal", "true");
+  if (title) inner.setAttribute("aria-label", title);
+  else inner.removeAttribute("aria-label");
+  inner.tabIndex = -1;
+  inner.focus();
 }
 function closeSheet() { $("sheet").hidden = true; }
+document.addEventListener("keydown", event => { if (event.key === "Escape") closeSheet(); });
 $("sheet").onclick = (event) => { if (event.target.id === "sheet") closeSheet(); };
 
 boot();

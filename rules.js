@@ -9,12 +9,13 @@
 // ---------------------------------------------------------------------
 export const GRADES = [7, 8, 9, 10, 11, 12, 13];
 export const CLASSES = ["A", "B"];
+// 색은 실제 학교 유니폼에서 가져왔다. Swift 쪽 School.swift 와 같아야 한다.
 export const HOUSES = [
-  { id: "NORO",    ko: "노로",   emoji: "🦌", color: "#F59E0B" },
-  { id: "SARAH",   ko: "사라",   emoji: "🌅", color: "#EF4444" },
-  { id: "GEOMUN",  ko: "거문",   emoji: "🌋", color: "#6B7280" },
-  { id: "MULCHAT", ko: "물찻",   emoji: "💧", color: "#3B82F6" },
-  { id: "JEOJI",   ko: "저지",   emoji: "🌲", color: "#10B981" },
+  { id: "NORO",    ko: "노로", emoji: "🐺", color: "#5F4B9B" },  // 보라 · 늑대
+  { id: "SARAH",   ko: "사라", emoji: "🦅", color: "#C8102E" },  // 빨강 · 불사조
+  { id: "GEOMUN",  ko: "거문", emoji: "🦁", color: "#6CA6D9" },  // 하늘 · 사자
+  { id: "MULCHAT", ko: "물찻", emoji: "🐉", color: "#2E7D4F" },  // 초록 · 용
+  { id: "JEOJI",   ko: "저지", emoji: "🦉", color: "#F5C518" },  // 노랑
 ];
 export const TIERS = [
   { min: 100, name: "시그마가가",  emoji: "🌟", card: "level_100_sigma" },
