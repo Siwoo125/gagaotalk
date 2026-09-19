@@ -110,16 +110,27 @@ export async function emailForNickname(nickname) {
 // ★ Swift 쪽 GagaLevel.forProfile 과 같아야 한다.
 // ---------------------------------------------------------------------
 export const ADMIN_LEVEL = 1000;
+export const MODERATOR_LEVEL = 100;
 
 export function levelForProfile(profile) {
   const base = levelFromXP(profile?.xp);
-  if (!profile?.is_admin) return base;
+  const level = profile?.is_admin ? ADMIN_LEVEL
+              : profile?.is_moderator ? MODERATOR_LEVEL
+              : null;
+  if (level === null) return base;
   return {
     ...base,
-    level: ADMIN_LEVEL,
+    level,
     tier: TIERS[0],            // 시그마가가
     into: 0, need: 0,
     isMax: true, progress: 1,
-    label: `Lv.${ADMIN_LEVEL} (MAX)`,
+    label: `Lv.${level} (MAX)`,
   };
+}
+
+/** 관리자/운영진 배지에 쓸 이름. 아니면 null. */
+export function roleBadge(profile) {
+  if (profile?.is_admin) return "시그마가가";
+  if (profile?.is_moderator) return "운영진";
+  return null;
 }

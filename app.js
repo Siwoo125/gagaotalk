@@ -8,7 +8,7 @@ import { SUPABASE_URL, SUPABASE_KEY } from "./config.js";
 
 import {
   GRADES, CLASSES, HOUSES, TIERS, xpForLevel, levelFromXP, measureMood,
-  emailForNickname, levelForProfile, ADMIN_LEVEL,
+  emailForNickname, levelForProfile, roleBadge, ADMIN_LEVEL, MODERATOR_LEVEL,
 } from "./rules.js";
 
 // ---------------------------------------------------------------------
@@ -79,7 +79,6 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true },
 });
 
-const ADMIN_BADGE = "시그마가가";
 
 const state = {
   me: null,
@@ -116,7 +115,7 @@ async function loadMe() {
 
   state.me = data;
   if (data.status === "approved") {
-    $("tab-admin").hidden = !data.is_admin;
+    $("tab-admin").hidden = !(data.is_admin || data.is_moderator);
     show("main");
     openTab(state.tab);
   } else if (data.status === "pending") {
@@ -973,6 +972,12 @@ async function renderAdmin() {
     wrap.append(card);
   });
 
+  if (!state.me.is_admin) {
+    // 운영진은 멤버 관리(강퇴/권한)를 할 수 없다. 서버가 막지만 버튼도 안 보인다.
+    body.append(wrap);
+    return;
+  }
+
   wrap.append(el("div", "section-title", `전체 멤버 ${all.data?.length || 0}`));
   const STATUS_LABEL = { approved: "입장", pending: "대기", banned: "퇴장", rejected: "거절" };
 
@@ -980,7 +985,8 @@ async function renderAdmin() {
     const card = el("div", "card");
     const title = el("div", "title");
     title.append(el("span", null, person.nickname));
-    if (person.is_admin) title.append(el("span", "chip", ADMIN_BADGE));
+    const badge = roleBadge(person);
+    if (badge) title.append(el("span", "chip", badge));
     if (person.status === "banned") title.append(el("span", "chip gray", "퇴장됨"));
     card.append(title, el("div", "muted small",
       `${STATUS_LABEL[person.status] || person.status}  ·  ${schoolLine(person) || "-"}  ·  Lv.${levelForProfile(person).level}`));
@@ -1046,7 +1052,11 @@ async function renderMe() {
   const level = levelForProfile(state.me);
 
   const card = el("div", "card");
-  card.append(el("div", "title", state.me.nickname),
+  const meTitle = el("div", "title");
+  meTitle.append(el("span", null, state.me.nickname));
+  const myBadge = roleBadge(state.me);
+  if (myBadge) meTitle.append(el("span", "chip", myBadge));
+  card.append(meTitle,
               el("div", "muted small", schoolLine(state.me)),
               el("div", "muted small", `${level.tier.emoji} ${level.tier.name}  ${level.label}`));
   wrap.append(card);
