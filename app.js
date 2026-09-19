@@ -1,3 +1,4 @@
+import { composePage } from "./presentation.js?v=20260919-2";
 // =====================================================================
 // 가가오톡 웹
 // iOS 앱과 같은 Supabase 를 쓴다. 규칙(레벨, 능력, 권한)은 전부 DB 에 있으므로
@@ -234,6 +235,7 @@ const TAB_TITLES = { rooms: "톡", friends: "친구", gaga: "가가", admin: "�
 
 async function openTab(tab) {
   state.tab = tab;
+  $("screen-main").dataset.page = tab;
   $("tab-title").textContent = TAB_TITLES[tab];
   document.querySelectorAll("#tabbar button")
     .forEach((b) => b.classList.toggle("on", b.dataset.tab === tab));
@@ -246,6 +248,7 @@ async function openTab(tab) {
     else if (tab === "gaga") await renderGaga();
     else if (tab === "admin") await renderAdmin();
     else await renderMe();
+    composePage($("tab-body"), tab);
   } catch (e) {
     $("tab-body").innerHTML = "";
     $("tab-body").append(el("div", "empty", errText(e)));

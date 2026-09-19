@@ -296,3 +296,107 @@ button.send { width: 42px; height: 42px; min-height: 42px; border-radius: 14px; 
   body { box-shadow: 0 0 45px #23334415; border-inline: 1px solid #dde2e5; }
 }
 @media (prefers-reduced-motion: reduce) { button { transition: none; } }
+
+/* Screen compositions ------------------------------------------------ */
+:root { --rail: 104px; --page-width: 1120px; }
+body { max-width: none; box-shadow: none; border: 0; }
+#screen-main { position: relative; }
+#main-header { flex: none; min-height: 82px; padding-inline: 28px; }
+#tab-body { padding: 0 0 28px; }
+.page-layout { max-width: var(--page-width); margin: auto; padding: 8px 28px 32px; }
+.page-section { min-width: 0; margin: 0 0 28px; }
+.section-heading { display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 500; color: #777; margin: 0; padding: 16px 0 12px; border-top: 1px solid #ececec; }
+.section-heading::after { content: ''; flex: 1; }
+.page-section > .rowitem { padding-inline: 8px; border-radius: 10px; }
+.rowitem .title { flex-wrap: wrap; white-space: normal; row-gap: 4px; }
+.rowitem .title > span:first-child { overflow: hidden; text-overflow: ellipsis; }
+.rowitem .right { max-width: 90px; }
+.page-rooms .page-section > .rowitem { min-height: 88px; }
+.page-rooms .page-section:first-child .icon-box { background: #fee500; }
+.page-rooms .page-section:nth-child(2) .icon-box { background: #e8eff4; }
+.page-rooms .page-section:nth-child(3) .icon-box { background: #f7e8dc; }
+.page-friends .rowitem .icon-box { border-radius: 20px; background: #ecedf4; }
+.page-friends .page-section > .card { background: #faf9f4; box-shadow: none; border: 0; }
+.page-friends .title { display: flex; align-items: center; justify-content: space-between; }
+.page-friends .bar { height: 4px; margin-block: 14px; }
+.page-gaga { background: #f7f8fa; padding-top: 20px; }
+#screen-main[data-page="gaga"] #tab-body { background: #f7f8fa; }
+.gaga-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: stretch; margin-bottom: 24px; }
+.gaga-hero .level-card { display: grid; grid-template-columns: 150px minmax(0, 1fr); align-items: center; margin: 0; border: 0; }
+.gaga-hero .level-card img { width: 150px; height: 150px; aspect-ratio: 1; object-fit: contain; }
+.gaga-hero .level-card .title { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; font-weight: 700; }
+.gaga-hero > .card:not(.level-card) { margin: 0; border: 0; background: #fff7c4; display: flex; flex-direction: column; justify-content: center; padding: 24px; }
+.gaga-hero > .card:not(.level-card) .title { font-size: 22px; font-weight: 700; margin-bottom: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+.gaga-hero .primary { margin-top: 22px; }
+.page-gaga .page-section > .card { box-shadow: none; border: 0; padding: 20px; }
+.page-gaga .page-section > .card > .small { color: #242424; font-weight: 700; margin-bottom: 12px; }
+.page-gaga .rowitem { min-height: 44px; font-size: 14px; }
+.page-gaga .grid4 { grid-template-columns: repeat(auto-fill,minmax(108px,1fr)); gap: 12px; }
+.page-gaga .item { min-height: 122px; background: white; gap: 8px; border: 1px solid #eceef0; }
+.page-gaga .item b { font-size: 34px; }
+.page-gaga .item.on { background: #fffbe3; border-color: #d9c440; }
+.page-admin .page-section { border: 1px solid #ececec; border-radius: 16px; padding: 0 20px 20px; background: white; }
+.page-admin .section-heading { border: 0; font-size: 16px; font-weight: 700; color: #242424; padding-block: 22px; }
+.page-admin .card { background: #f8f9fa; border: 0; padding: 18px; }
+.page-admin .card .title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.page-admin .btn-row { flex-wrap: wrap; }
+.page-admin .btn-row button { flex-basis: 80px; background: white; border: 1px solid #e5e5e5; }
+.page-admin .btn-row .ok { background: #fee500; border-color: #fee500; }
+.page-admin .btn-row .no { color: #bd3934; }
+.page-admin .page-section > .primary { margin: 0 0 16px; }
+.page-admin .card > .link { text-align: left; padding-inline: 0; width: auto; color: #4b4b4b; }
+.page-me .profile-hero { min-height: 150px; border: 0; background: #f9f5e6; padding: 30px; border-radius: 18px; margin-bottom: 28px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.profile-hero .title { font-size: 26px; font-weight: 700; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.page-me .page-section > .card { border: 0; background: #f8f8f8; }
+.page-me .page-section .chip { border-radius: 18px; min-height: 38px; border: 1px solid #e8e8e8; }
+.page-me .page-section .chip:not(.gray) { background: #fff4a3; border-color: #d8bd25; }
+input[type="checkbox"][role="switch"] { appearance: none; width: 46px !important; height: 28px; min-height: 28px; padding: 0; border: 0; border-radius: 20px; background: #d9dce0; position: relative; flex: none; cursor: pointer; }
+input[type="checkbox"][role="switch"]::after { content: ''; position: absolute; width: 22px; height: 22px; left: 3px; top: 3px; border-radius: 50%; background: white; box-shadow: 0 1px 3px #0002; transition: transform .15s; }
+input[type="checkbox"][role="switch"]:checked { background: #fee500; }
+input[type="checkbox"][role="switch"]:checked::after { transform: translateX(18px); }
+#screen-chat { max-width: 1120px; margin: auto; }
+#chat-header { padding-inline: 18px; min-height: 70px; }
+#chat-list { max-width: 900px; margin: auto; }
+#chat-form { padding-inline: max(18px,calc((100% - 900px)/2)); }
+.msg .col { max-width: min(72%,560px); }
+.msg .bubble { position: relative; }
+.msg:not(.mine) .av:not(.hidden) + .col .bubble::before { content: ''; position: absolute; left: -6px; top: 0; border-top: 9px solid white; border-left: 7px solid transparent; }
+.msg.mine .bubble::before { content: ''; position: absolute; right: -6px; top: 0; border-top: 9px solid #fee500; border-right: 7px solid transparent; }
+#sheet-inner { max-width: 560px; padding: 30px 26px; box-shadow: 0 -8px 50px #0002; }
+#sheet-inner > .rowitem { min-height: 58px; border-bottom: 1px solid #f0f0f0; }
+#sheet-inner > button.link { min-height: 50px; text-align: left; padding-inline: 12px; color: #333; background: #f8f8f8; margin-bottom: 6px; }
+#screen-pending .center, #screen-blocked .center, #screen-setup .pad { width: min(90%,420px); padding: 36px; background: white; border: 1px solid #ededed; border-radius: 20px; }
+#screen-pending, #screen-blocked, #screen-setup { background: #f8f7f0; }
+#screen-setup .pad { margin: auto; }
+#screen-signup .auth { max-width: 480px; padding: 32px 26px 60px; }
+@media (min-width: 900px) {
+  #screen-main { display: none; padding-left: var(--rail); }
+  #screen-main.active { display: flex; }
+  #tabbar { position: absolute; inset: 0 auto 0 0; width: var(--rail); flex-direction: column; justify-content: flex-start; align-items: stretch; padding: 36px 8px; gap: 14px; border: 0; border-right: 1px solid #e9eaed; background: #f5f6f7; }
+  #tabbar button { flex: none; padding: 16px 8px; gap: 10px; border-radius: 14px; font-size: 11px; }
+  #tabbar button.on { background: #fee500; }
+  #main-header { width: 100%; max-width: var(--page-width); margin-inline: auto; padding-top: 30px; min-height: 110px; }
+  .page-admin, .page-me { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; align-items: start; }
+  .page-admin .page-section { margin: 0; }
+  .page-admin .page-section:last-child { grid-column: 1/-1; }
+  .page-me .profile-hero { grid-column: 1/-1; margin: 0; }
+  .page-me .page-section { margin: 0; }
+  .page-friends { max-width: 850px; }
+  .page-rooms { max-width: 1000px; }
+  #sheet { align-items: center; padding: 32px; }
+  #sheet-inner { border-radius: 20px; }
+  #sheet-inner::before { display: none; }
+  #screen-chat.active { border-inline: 1px solid #a9bdcf; }
+}
+@media (max-width: 600px) {
+  #main-header { padding-inline: 20px; min-height: 76px; }
+  .page-layout { padding-inline: 16px; }
+  .gaga-hero { grid-template-columns: 1fr; gap: 14px; }
+  .gaga-hero .level-card { grid-template-columns: 124px minmax(0,1fr); }
+  .gaga-hero .level-card img { width: 124px; height: 124px; }
+  .gaga-hero > .card:not(.level-card) { padding: 20px; }
+  .page-admin .page-section { padding-inline: 14px; }
+  .page-gaga .grid4 { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .page-me .profile-hero { padding: 24px; }
+  #chat-header { padding-inline: 8px; }
+}
